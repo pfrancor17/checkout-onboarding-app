@@ -23,7 +23,8 @@
     "migration:revert": "npm run typeorm -- migration:revert",
     "migration:show": "npm run typeorm -- migration:show",
     "seed": "ts-node src/database/seeds/run-seed.ts",
-    "db:setup": "npm run migration:run && npm run seed"
+    "db:setup": "npm run migration:run && npm run seed",
+    "lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\""
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -96,6 +97,11 @@
         "lines": 80,
         "statements": 80
       }
-    }
+    },
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "json-summary"
+    ]
   }
 }
