@@ -6,6 +6,10 @@ describe('envValidationSchema', () => {
     DB_USER: 'checkout',
     DB_PASSWORD: 'checkout',
     DB_NAME: 'checkout',
+    PAYMENT_API_URL: 'https://gateway.test/v1',
+    PAYMENT_PUBLIC_KEY: 'pub_test',
+    PAYMENT_PRIVATE_KEY: 'prv_test',
+    PAYMENT_INTEGRITY_SECRET: 'integrity_test',
   };
 
   it('accepts a minimal env and applies defaults', () => {
@@ -39,5 +43,14 @@ describe('envValidationSchema', () => {
     });
 
     expect(error?.message).toContain('NODE_ENV');
+  });
+
+  it('rejects a payment gateway URL that is not HTTPS', () => {
+    const { error } = envValidationSchema.validate({
+      ...validEnv,
+      PAYMENT_API_URL: 'http://gateway.test/v1',
+    });
+
+    expect(error?.message).toContain('PAYMENT_API_URL');
   });
 });
