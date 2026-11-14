@@ -3,9 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { buildDatabaseOptions } from './config/database.config';
 import { envValidationSchema } from './config/env.validation';
+import { CustomersModule } from './customers/customers.module';
+import { DeliveriesModule } from './deliveries/deliveries.module';
 import { HealthModule } from './health/health.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ProductsModule } from './products/products.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { ProductsModule } from './products/products.module';
     HealthModule,
     ProductsModule,
     PaymentsModule,
+    TransactionsModule,
+    CustomersModule,
+    DeliveriesModule,
   ],
 })
 export class AppModule {}

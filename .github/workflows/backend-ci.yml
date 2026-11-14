@@ -38,6 +38,8 @@ jobs:
 
       - run: npm ci
       - run: npm run lint:check
+      - name: Type check (including tests)
+        run: npm run typecheck
       - name: Unit tests with coverage (threshold 80%)
         run: npm run test:cov
       - name: E2E tests
@@ -93,5 +95,7 @@ jobs:
         run: npm run db:setup
       - name: Seed is idempotent
         run: npm run seed | grep "0 new product(s)"
+      - name: Integration tests (repository against PostgreSQL)
+        run: npm run test:int
       - name: Migrations can be reverted
         run: npm run migration:revert

@@ -54,6 +54,10 @@ export interface PaymentGateway {
     request: CardPaymentRequest,
   ): Promise<Result<GatewayTransaction, AppError>>;
   getTransaction(id: string): Promise<Result<GatewayTransaction, AppError>>;
+  /** Looks a payment up by our reference; null if it never reached the gateway. */
+  findTransactionByReference(
+    reference: string,
+  ): Promise<Result<GatewayTransaction | null, AppError>>;
 }
 
 export const PAYMENT_GATEWAY = Symbol('PAYMENT_GATEWAY');

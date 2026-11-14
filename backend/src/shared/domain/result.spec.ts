@@ -11,7 +11,7 @@ describe('Result (Railway Oriented Programming)', () => {
     });
 
     it('mapErr leaves an Ok untouched', () => {
-      const result = ok<number, string>(2).mapErr();
+      const result = ok<number, string>(2).mapErr((e) => e.length);
       expect(result.isOk && result.value).toBe(2);
     });
 

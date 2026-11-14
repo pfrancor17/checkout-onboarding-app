@@ -4,7 +4,12 @@
  * decides how to expose them.
  */
 export type AppErrorCode =
-  'NOT_FOUND' | 'VALIDATION' | 'CONFLICT' | 'PAYMENT_GATEWAY' | 'UNEXPECTED';
+  | 'NOT_FOUND'
+  | 'VALIDATION'
+  | 'CONFLICT'
+  | 'PAYMENT_GATEWAY'
+  | 'GATEWAY_UNAVAILABLE'
+  | 'UNEXPECTED';
 
 export interface AppError {
   readonly code: AppErrorCode;
@@ -31,6 +36,16 @@ export const paymentGatewayError = (
   message: string,
   cause?: unknown,
 ): AppError => ({ code: 'PAYMENT_GATEWAY', message, cause });
+
+/**
+ * The gateway did not answer (network error, timeout or 5xx). Unlike
+ * PAYMENT_GATEWAY (a clear rejection), the outcome is UNKNOWN: the request
+ * may have been processed, so a payment must not be assumed to have failed.
+ */
+export const gatewayUnavailable = (
+  message: string,
+  cause?: unknown,
+): AppError => ({ code: 'GATEWAY_UNAVAILABLE', message, cause });
 
 export const unexpected = (cause?: unknown): AppError => ({
   code: 'UNEXPECTED',

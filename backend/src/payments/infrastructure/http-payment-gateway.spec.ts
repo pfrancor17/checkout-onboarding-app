@@ -175,18 +175,19 @@ describe('HttpPaymentGateway', () => {
       });
     });
 
-    it('returns PAYMENT_GATEWAY when the network fails', async () => {
+    it('returns GATEWAY_UNAVAILABLE when the network fails (outcome unknown)', async () => {
       fetchMock.mockRejectedValue(new Error('ECONNRESET'));
 
       const result = await gateway.getTransaction('gw-tx-1');
 
+      // Unknown outcome, not a rejection.
       expect(result.isErr && result.error).toMatchObject({
-        code: 'PAYMENT_GATEWAY',
+        code: 'GATEWAY_UNAVAILABLE',
         message: 'Payment gateway is unreachable',
       });
     });
 
-    it('returns PAYMENT_GATEWAY when the body is not JSON', async () => {
+    it('returns GATEWAY_UNAVAILABLE on a 5xx, even if the body is not JSON', async () => {
       const htmlResponse = {
         ok: false,
         status: 503,
@@ -196,7 +197,38 @@ describe('HttpPaymentGateway', () => {
 
       const result = await gateway.getTransaction('gw-tx-1');
 
-      expect(result.isErr && result.error.message).toContain('HTTP 503');
+      expect(result.isErr && result.error).toMatchObject({
+        code: 'GATEWAY_UNAVAILABLE',
+        message: 'Payment gateway is unavailable (HTTP 503)',
+      });
+    });
+  });
+
+  describe('findTransactionByReference', () => {
+    it('returns the first payment with that reference', async () => {
+      fetchMock.mockResolvedValue(
+        jsonResponse(200, {
+          data: [{ ...transactionData, status: 'APPROVED' }],
+        }),
+      );
+
+      const result = await gateway.findTransactionByReference('ref 1');
+
+      expect(lastCall().url).toBe(
+        'https://gateway.test/v1/transactions?reference=ref%201',
+      );
+      expect(result.isOk && result.value).toMatchObject({
+        id: 'gw-tx-1',
+        status: 'APPROVED',
+      });
+    });
+
+    it('returns null when the gateway never received it', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, { data: [] }));
+
+      const result = await gateway.findTransactionByReference('ref-1');
+
+      expect(result.isOk && result.value).toBeNull();
     });
   });
 });

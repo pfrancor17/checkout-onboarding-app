@@ -34,6 +34,6 @@ import {
     GetAcceptanceTokensUseCase,
     PaymentStatusPoller,
   ],
-  exports: [PAYMENT_GATEWAY, PaymentStatusPoller],
+  exports: [PAYMENT_GATEWAY, PaymentStatusPoller, CLOCK],
 })
 export class PaymentsModule {}
