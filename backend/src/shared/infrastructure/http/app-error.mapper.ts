@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { AppError } from '../../domain/app-error';
@@ -34,6 +35,9 @@ export const toHttpException = (error: AppError): HttpException => {
     case 'PAYMENT_GATEWAY':
       logger.warn(`${error.message}: ${describeCause(error.cause)}`);
       return new BadGatewayException(error.message);
+    case 'GATEWAY_UNAVAILABLE':
+      logger.warn(`${error.message}: ${describeCause(error.cause)}`);
+      return new ServiceUnavailableException(error.message);
     case 'UNEXPECTED':
       // The cause is logged but never sent to the client.
       logger.error(error.message, error.cause);

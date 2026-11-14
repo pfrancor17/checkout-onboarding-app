@@ -1,14 +1,18 @@
 import { PaymentStatusPoller } from '../../payments/application/payment-status-poller';
 import { GatewayTransaction } from '../../payments/domain/payment-gateway.port';
 import { buildProduct } from '../../products/domain/product.fixture';
-import { conflict, paymentGatewayError } from '../../shared/domain/app-error';
+import {
+  conflict,
+  gatewayUnavailable,
+  paymentGatewayError,
+} from '../../shared/domain/app-error';
 import { err, ok } from '../../shared/domain/result';
 import { buildTransaction, TX_ID } from '../domain/transaction.fixture';
 import {
   CreateTransactionCommand,
   CreateTransactionUseCase,
-  PAYMENT_NOT_PROCESSED,
 } from './create-transaction.use-case';
+import { PAYMENT_NOT_PROCESSED } from '../domain/transaction';
 import {
   mockPaymentGateway,
   mockProductRepository,
@@ -157,6 +161,20 @@ describe('CreateTransactionUseCase', () => {
     expect(poller.waitForFinalStatus).not.toHaveBeenCalled();
   });
 
+  it('keeps it PENDING with the stock reserved when the gateway does not answer', async () => {
+    gateway.createCardPayment.mockResolvedValue(
+      err(gatewayUnavailable('Payment gateway is unreachable')),
+    );
+    transactions.findById.mockResolvedValue(pending);
+
+    const result = await useCase.execute(command());
+
+    // The charge may have happened: never assume it failed.
+    expect(result.isOk && result.value.status).toBe('PENDING');
+    expect(transactions.finalize).not.toHaveBeenCalled();
+    expect(transactions.attachGatewayTransaction).not.toHaveBeenCalled();
+  });
+
   it('keeps it PENDING when the result is not known yet', async () => {
     gateway.createCardPayment.mockResolvedValue(ok(gatewayTx('PENDING')));
     poller.waitForFinalStatus.mockResolvedValue(
@@ -229,10 +247,34 @@ describe('CreateTransactionUseCase', () => {
       const original = buildTransaction({ status: 'APPROVED' });
       transactions.findByIdempotencyKey.mockResolvedValue(original);
 
-      const result = await useCase.execute(command({ idempotencyKey: 'k-1' }));
+      // Same order as the original (product, quantity, email).
+      const result = await useCase.execute(
+        command({
+          idempotencyKey: 'k-1',
+          productId: original.product.id,
+          quantity: original.amounts.quantity,
+          customer: { ...command().customer, email: original.customer.email },
+        }),
+      );
 
       expect(result.isOk && result.value).toBe(original);
       expect(transactions.createPending).not.toHaveBeenCalled();
+      expect(gateway.createCardPayment).not.toHaveBeenCalled();
+    });
+
+    it('rejects a repeated key used for a different order (422)', async () => {
+      transactions.findByIdempotencyKey.mockResolvedValue(
+        buildTransaction({ status: 'APPROVED' }),
+      );
+
+      const result = await useCase.execute(
+        command({ idempotencyKey: 'k-1', quantity: 3 }),
+      );
+
+      expect(result.isErr && result.error).toMatchObject({
+        code: 'VALIDATION',
+        message: 'This Idempotency-Key was already used for a different order',
+      });
       expect(gateway.createCardPayment).not.toHaveBeenCalled();
     });
 

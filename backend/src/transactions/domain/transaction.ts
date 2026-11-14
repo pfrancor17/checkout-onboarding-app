@@ -8,6 +8,16 @@ export type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
 export const CARD_BRANDS = ['VISA', 'MASTERCARD'] as const;
 export type CardBrand = (typeof CARD_BRANDS)[number];
 
+/** Shown when the payment never reached the gateway: nothing was charged. */
+export const PAYMENT_NOT_PROCESSED =
+  'The payment could not be processed. No charge was made.';
+
+/**
+ * A PENDING payment that the gateway does not know after this time never
+ * reached it, so it can safely be marked as failed and its stock released.
+ */
+export const UNCONFIRMED_PAYMENT_GRACE_MS = 2 * 60 * 1000;
+
 /** Business rule: a single order can take at most this many units. */
 export const MAX_UNITS_PER_ORDER = 5;
 

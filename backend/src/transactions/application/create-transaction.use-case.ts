@@ -10,7 +10,11 @@ import {
   PRODUCT_REPOSITORY,
   type ProductRepository,
 } from '../../products/domain/product.repository';
-import { AppError, unexpected } from '../../shared/domain/app-error';
+import {
+  AppError,
+  unexpected,
+  validationError,
+} from '../../shared/domain/app-error';
 import { err, fromPromise, ok, Result } from '../../shared/domain/result';
 import {
   calculateAmounts,
@@ -20,6 +24,7 @@ import {
   CustomerData,
   DeliveryAddress,
   NewOrder,
+  PAYMENT_NOT_PROCESSED,
   TransactionDetails,
 } from '../domain/transaction';
 import {
@@ -45,9 +50,14 @@ export interface CreateTransactionCommand {
   };
 }
 
-/** Message shown to the customer when the payment could not even start. */
-export const PAYMENT_NOT_PROCESSED =
-  'The payment could not be processed. No charge was made.';
+/** A retried request must describe the same order as the original one. */
+const isSameOrder = (
+  existing: TransactionDetails,
+  command: CreateTransactionCommand,
+): boolean =>
+  existing.product.id === command.productId &&
+  existing.amounts.quantity === command.quantity &&
+  existing.customer.email === command.customer.email.trim().toLowerCase();
 
 /**
  * Checkout use case, written as a railway:
@@ -74,9 +84,18 @@ export class CreateTransactionUseCase {
     command: CreateTransactionCommand,
   ): Promise<Result<TransactionDetails, AppError>> {
     const existing = await this.findByIdempotencyKey(command.idempotencyKey);
-    return existing.andThenAsync((found) =>
-      found ? Promise.resolve(ok(found)) : this.checkout(command),
-    );
+    return existing.andThenAsync((found) => {
+      if (!found) return this.checkout(command);
+      return Promise.resolve(
+        isSameOrder(found, command)
+          ? ok(found)
+          : err(
+              validationError(
+                'This Idempotency-Key was already used for a different order',
+              ),
+            ),
+      );
+    });
   }
 
   private async checkout(
@@ -153,8 +172,14 @@ export class CreateTransactionUseCase {
       personalDataAuthToken: payment.personalDataAuthToken,
     });
 
+    if (charge.isErr && charge.error.code === 'GATEWAY_UNAVAILABLE') {
+      // Timeout / network / 5xx: the payment may or may not exist on the
+      // gateway. Keep it PENDING with the stock reserved; GET
+      // /transactions/:id will look it up by reference and settle it.
+      return loadTransaction(this.transactions, transaction.id);
+    }
     if (charge.isErr) {
-      // Nothing was charged: release the stock and report the failure.
+      // A clear rejection: nothing was charged. Release the stock.
       return settleTransaction(
         this.transactions,
         transaction.id,

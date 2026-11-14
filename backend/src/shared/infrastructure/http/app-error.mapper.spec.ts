@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import {
   AppError,
   conflict,
+  gatewayUnavailable,
   notFound,
   paymentGatewayError,
   unexpected,
@@ -21,7 +22,8 @@ describe('toHttpException', () => {
     [notFound('missing'), 404],
     [validationError('bad input'), 422],
     [conflict('out of stock'), 409],
-    [paymentGatewayError('gateway down', new Error('timeout')), 502],
+    [paymentGatewayError('gateway rejected', new Error('422')), 502],
+    [gatewayUnavailable('gateway timeout', new Error('timeout')), 503],
     [unexpected(new Error('db')), 500],
   ])('maps %o to HTTP %i', (error, status) => {
     const exception = toHttpException(error);

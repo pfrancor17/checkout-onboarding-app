@@ -37,6 +37,7 @@ describe('PaymentStatusPoller', () => {
     getAcceptanceTokens: jest.fn(),
     createCardPayment: jest.fn(),
     getTransaction: jest.fn(),
+    findTransactionByReference: jest.fn(),
   };
   let clock: FakeClock;
 

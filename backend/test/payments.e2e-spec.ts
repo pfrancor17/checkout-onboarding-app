@@ -17,6 +17,7 @@ describe('Payments (e2e)', () => {
     getAcceptanceTokens: jest.fn(),
     createCardPayment: jest.fn(),
     getTransaction: jest.fn(),
+    findTransactionByReference: jest.fn(),
   };
 
   beforeAll(async () => {

@@ -1,5 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, paymentGatewayError } from '../../shared/domain/app-error';
+import {
+  AppError,
+  gatewayUnavailable,
+  paymentGatewayError,
+} from '../../shared/domain/app-error';
 import { err, ok, Result } from '../../shared/domain/result';
 import {
   AcceptanceTokens,
@@ -115,6 +119,17 @@ export class HttpPaymentGateway implements PaymentGateway {
     return result.map(toGatewayTransaction);
   }
 
+  async findTransactionByReference(
+    reference: string,
+  ): Promise<Result<GatewayTransaction | null, AppError>> {
+    const result = await this.request<TransactionData[]>(
+      `/transactions?reference=${encodeURIComponent(reference)}`,
+    );
+    return result.map((list) =>
+      list.length > 0 ? toGatewayTransaction(list[0]) : null,
+    );
+  }
+
   private async request<T>(
     path: string,
     init: RequestInit = {},
@@ -130,13 +145,23 @@ export class HttpPaymentGateway implements PaymentGateway {
         signal: AbortSignal.timeout(this.config.timeoutMs),
       });
     } catch (cause) {
-      return err(paymentGatewayError('Payment gateway is unreachable', cause));
+      // Timeout or network error: we cannot know if it was processed.
+      return err(gatewayUnavailable('Payment gateway is unreachable', cause));
     }
 
     const envelope = (await response
       .json()
       .catch(() => ({}))) as GatewayEnvelope<T>;
 
+    if (response.status >= 500) {
+      // The gateway failed on its side: the outcome is unknown too.
+      return err(
+        gatewayUnavailable(
+          `Payment gateway is unavailable (HTTP ${response.status})`,
+          envelope.error,
+        ),
+      );
+    }
     if (!response.ok || envelope.data === undefined) {
       return err(
         paymentGatewayError(

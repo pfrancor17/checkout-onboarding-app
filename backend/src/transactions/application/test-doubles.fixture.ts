@@ -21,4 +21,5 @@ export const mockPaymentGateway = (): jest.Mocked<PaymentGateway> => ({
   getAcceptanceTokens: jest.fn(),
   createCardPayment: jest.fn(),
   getTransaction: jest.fn(),
+  findTransactionByReference: jest.fn(),
 });
