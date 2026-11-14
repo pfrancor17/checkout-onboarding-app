@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GetAcceptanceTokensUseCase } from './application/get-acceptance-tokens.use-case';
 import {
-  defaultSleep,
+  CLOCK,
   PAYMENT_POLLING_CONFIG,
   PaymentStatusPoller,
-  SLEEP,
+  systemClock,
 } from './application/payment-status-poller';
 import { PAYMENT_GATEWAY } from './domain/payment-gateway.port';
 import { PaymentsController } from './infrastructure/http/payments.controller';
@@ -29,7 +29,7 @@ import {
       inject: [ConfigService],
       useFactory: paymentPollingConfigFactory,
     },
-    { provide: SLEEP, useValue: defaultSleep },
+    { provide: CLOCK, useValue: systemClock },
     { provide: PAYMENT_GATEWAY, useClass: HttpPaymentGateway },
     GetAcceptanceTokensUseCase,
     PaymentStatusPoller,

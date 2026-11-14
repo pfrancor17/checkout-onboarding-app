@@ -155,7 +155,7 @@ describe('HttpPaymentGateway', () => {
       });
     });
 
-    it('treats an unknown status as ERROR', async () => {
+    it('treats an unknown status as PENDING (never as a failure)', async () => {
       fetchMock.mockResolvedValue(
         jsonResponse(200, {
           data: {
@@ -170,7 +170,7 @@ describe('HttpPaymentGateway', () => {
       const result = await gateway.getTransaction('gw-tx-1');
 
       expect(result.isOk && result.value).toMatchObject({
-        status: 'ERROR',
+        status: 'PENDING',
         statusMessage: null,
       });
     });

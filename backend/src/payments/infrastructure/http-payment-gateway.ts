@@ -33,10 +33,15 @@ interface GatewayEnvelope<T> {
   error?: { type?: string; reason?: string; messages?: unknown };
 }
 
+/**
+ * An unknown status is treated as PENDING (not final) on purpose: marking
+ * it as failed could leave a customer charged without their product.
+ * A PENDING payment can still be reconciled later.
+ */
 const toPaymentStatus = (status: string): PaymentStatus =>
   (PAYMENT_STATUSES as readonly string[]).includes(status)
     ? (status as PaymentStatus)
-    : 'ERROR';
+    : 'PENDING';
 
 const toGatewayTransaction = (data: TransactionData): GatewayTransaction => ({
   id: data.id,

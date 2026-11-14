@@ -36,6 +36,7 @@ describe('payment gateway config', () => {
     expect(paymentPollingConfigFactory(configFrom({}))).toEqual({
       attempts: 10,
       intervalMs: 2000,
+      maxWaitMs: 15000,
     });
   });
 });
