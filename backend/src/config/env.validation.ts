@@ -15,6 +15,10 @@ export const envValidationSchema = Joi.object({
   DB_SSL: Joi.boolean().default(false),
   DB_RUN_MIGRATIONS: Joi.boolean().default(false),
 
+  // Checkout fees, in cents (COP): 300000 = $3.000, 1000000 = $10.000
+  BASE_FEE_IN_CENTS: Joi.number().integer().min(0).default(300000),
+  DELIVERY_FEE_IN_CENTS: Joi.number().integer().min(0).default(1000000),
+
   // Payment gateway (sandbox). Secrets come from env vars, never from code.
   PAYMENT_API_URL: Joi.string().uri({ scheme: 'https' }).required(),
   PAYMENT_PUBLIC_KEY: Joi.string().required(),

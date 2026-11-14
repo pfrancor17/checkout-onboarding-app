@@ -24,7 +24,9 @@
     "migration:show": "npm run typeorm -- migration:show",
     "seed": "ts-node src/database/seeds/run-seed.ts",
     "db:setup": "npm run migration:run && npm run seed",
-    "lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\""
+    "lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test:int": "jest --config ./test/jest-integration.json --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
