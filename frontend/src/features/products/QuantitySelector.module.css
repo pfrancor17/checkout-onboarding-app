@@ -1,0 +1,28 @@
+.selector {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.button {
+  width: var(--tap-target);
+  height: var(--tap-target);
+  border: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.button:disabled {
+  color: var(--color-border);
+  cursor: not-allowed;
+}
+
+.value {
+  min-width: 40px;
+  text-align: center;
+  font-weight: 600;
+}

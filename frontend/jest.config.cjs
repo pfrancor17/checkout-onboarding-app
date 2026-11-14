@@ -15,6 +15,7 @@ module.exports = {
     '!src/main.tsx',
     '!src/**/*.d.ts',
     '!src/test/**',
+    '!src/**/*.fixture.ts',
     '!src/config/env.ts',
   ],
   coverageReporters: ['text', 'lcov', 'json-summary'],
