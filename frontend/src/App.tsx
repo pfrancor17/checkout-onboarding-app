@@ -1,9 +1,9 @@
 import styles from './App.module.css';
 import { useAppSelector } from './app/hooks';
 import type { CheckoutStep } from './features/checkout/checkoutSlice';
+import { ProductPage } from './features/products/ProductPage';
 
-const STEP_TITLES: Record<CheckoutStep, string> = {
-  PRODUCT: 'Producto',
+const STEP_TITLES: Record<Exclude<CheckoutStep, 'PRODUCT'>, string> = {
   PAYMENT_FORM: 'Datos de pago y entrega',
   SUMMARY: 'Resumen',
   RESULT: 'Resultado del pago',
@@ -23,10 +23,14 @@ function App() {
         <span className={styles.brand}>Checkout Store</span>
       </header>
       <main className={styles.main}>
-        <section className={styles.placeholder} aria-live="polite">
-          <h1>{STEP_TITLES[step]}</h1>
-          <p className={styles.placeholderHint}>Pantalla en construcción.</p>
-        </section>
+        {step === 'PRODUCT' ? (
+          <ProductPage />
+        ) : (
+          <section className={styles.placeholder} aria-live="polite">
+            <h1>{STEP_TITLES[step]}</h1>
+            <p className={styles.placeholderHint}>Pantalla en construcción.</p>
+          </section>
+        )}
       </main>
     </div>
   );

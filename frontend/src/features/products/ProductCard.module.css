@@ -1,0 +1,116 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: linear-gradient(135deg, #dbe4fb, #eef2fd);
+}
+
+.initial {
+  color: var(--color-primary);
+  font-size: 4rem;
+  font-weight: 700;
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.loaded {
+  opacity: 1;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.name {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.badge {
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: #e8f5ee;
+  color: var(--color-success);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.low {
+  background: #fff4e0;
+  color: #9a5b00;
+}
+
+.soldOut {
+  background: #fde8ea;
+  color: var(--color-danger);
+}
+
+.description {
+  color: var(--color-text-muted);
+}
+
+.price {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.quantityRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quantityLabel {
+  font-weight: 600;
+}
+
+.buy {
+  /* Pushes the button to the bottom so cards in a row line up. */
+  margin-top: auto;
+  min-height: var(--tap-target);
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-weight: 700;
+}
+
+.buy:disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}

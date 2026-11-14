@@ -10,10 +10,12 @@ import {
   REHYDRATE,
 } from 'redux-persist';
 import { checkoutReducer } from '../features/checkout/checkoutSlice';
+import { productsReducer } from '../features/products/productsSlice';
 import { createSafeStorage } from './persistStorage';
 
 export const rootReducer = combineReducers({
   checkout: checkoutReducer,
+  products: productsReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -4,15 +4,26 @@ import {
   type CheckoutStep,
   initialCheckoutState,
 } from './features/checkout/checkoutSlice';
+import { apiRequest } from './shared/api/httpClient';
 import { renderWithProviders } from './test/renderWithProviders';
 
+jest.mock('./shared/api/httpClient', () => ({
+  ...jest.requireActual('./shared/api/httpClient'),
+  apiRequest: jest.fn(),
+}));
+
 describe('App', () => {
-  it('shows the header and starts on the product step', () => {
+  beforeEach(() => jest.mocked(apiRequest).mockResolvedValue([]));
+
+  it('shows the header and starts on the product page', async () => {
     renderWithProviders(<App />);
 
     expect(screen.getByText('Checkout Store')).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Producto' }),
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'Nuestros productos',
+      }),
     ).toBeInTheDocument();
   });
 

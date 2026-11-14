@@ -13,9 +13,9 @@ export interface ProductSeed {
 export const PRODUCT_SEEDS: ProductSeed[] = [
   {
     sku: 'HEADPHONES-BT-01',
-    name: 'Wireless Headphones',
+    name: 'Audífonos inalámbricos',
     description:
-      'Over-ear Bluetooth headphones with active noise cancelling and 30 hours of battery life.',
+      'Audífonos de diadema con Bluetooth, cancelación activa de ruido y hasta 30 horas de batería.',
     priceInCents: 24_990_000,
     currency: 'COP',
     stock: 10,
@@ -23,9 +23,9 @@ export const PRODUCT_SEEDS: ProductSeed[] = [
   },
   {
     sku: 'SMARTWATCH-02',
-    name: 'Smart Watch',
+    name: 'Reloj inteligente',
     description:
-      'Water-resistant smart watch with heart-rate monitor, GPS and sleep tracking.',
+      'Reloj resistente al agua con monitor de ritmo cardíaco, GPS y seguimiento del sueño.',
     priceInCents: 35_900_000,
     currency: 'COP',
     stock: 5,
@@ -33,9 +33,9 @@ export const PRODUCT_SEEDS: ProductSeed[] = [
   },
   {
     sku: 'SPEAKER-PORT-03',
-    name: 'Portable Speaker',
+    name: 'Parlante portátil',
     description:
-      'Compact waterproof speaker with deep bass and 12 hours of playback.',
+      'Parlante compacto y resistente al agua, con bajos potentes y 12 horas de reproducción.',
     priceInCents: 15_450_000,
     currency: 'COP',
     stock: 20,
