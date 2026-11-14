@@ -86,7 +86,8 @@
       "!**/*.module.ts",
       "!database/data-source.ts",
       "!database/migrations/**",
-      "!database/seeds/run-seed.ts"
+      "!database/seeds/run-seed.ts",
+      "!**/*.fixture.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
