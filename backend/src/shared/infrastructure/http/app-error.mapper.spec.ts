@@ -7,7 +7,7 @@ import {
   unexpected,
   validationError,
 } from '../../domain/app-error';
-import { toHttpException } from './app-error.mapper';
+import { describeCause, toHttpException } from './app-error.mapper';
 
 describe('toHttpException', () => {
   beforeAll(() => {
@@ -34,5 +34,35 @@ describe('toHttpException', () => {
     const exception = toHttpException(unexpected(new Error('password=123')));
 
     expect(JSON.stringify(exception.getResponse())).not.toContain('password');
+  });
+
+  it('logs the gateway error body as readable JSON', () => {
+    const warn = jest.spyOn(Logger.prototype, 'warn');
+
+    toHttpException(
+      paymentGatewayError('Gateway rejected (HTTP 422)', {
+        type: 'INPUT_VALIDATION_ERROR',
+      }),
+    );
+
+    expect(warn).toHaveBeenLastCalledWith(
+      'Gateway rejected (HTTP 422): {"type":"INPUT_VALIDATION_ERROR"}',
+    );
+  });
+
+  describe('describeCause', () => {
+    it('uses the message of an Error', () => {
+      expect(describeCause(new Error('ECONNRESET'))).toBe('ECONNRESET');
+    });
+
+    it('says when there are no details', () => {
+      expect(describeCause(undefined)).toBe('no details');
+    });
+
+    it('does not break on values JSON cannot serialize', () => {
+      const circular: Record<string, unknown> = {};
+      circular.self = circular;
+      expect(describeCause(circular)).toBe('[unserializable cause]');
+    });
   });
 });
