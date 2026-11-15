@@ -1,9 +1,6 @@
 import { screen } from '@testing-library/react';
 import App from './App';
-import {
-  type CheckoutStep,
-  initialCheckoutState,
-} from './features/checkout/checkoutSlice';
+import { initialCheckoutState } from './features/checkout/checkoutSlice';
 import { apiRequest } from './shared/api/httpClient';
 import { renderWithProviders } from './test/renderWithProviders';
 
@@ -54,16 +51,23 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it.each<[CheckoutStep, string]>([['RESULT', 'Resultado del pago']])(
-    'restores the %s step from the store (e.g. after a refresh)',
-    (step, title) => {
-      renderWithProviders(<App />, {
-        preloadedState: { checkout: { ...initialCheckoutState, step } },
-      });
+  it('shows the result page on the result step', () => {
+    // The transaction lookup stays in flight for this test.
+    jest.mocked(apiRequest).mockReturnValue(new Promise(() => undefined));
+    renderWithProviders(<App />, {
+      preloadedState: {
+        checkout: {
+          ...initialCheckoutState,
+          step: 'RESULT',
+          transactionId: 'tx-1',
+        },
+      },
+    });
 
-      expect(
-        screen.getByRole('heading', { level: 1, name: title }),
-      ).toBeInTheDocument();
-    },
-  );
+    expect(
+      screen.getByRole('heading', {
+        name: 'Consultando el estado de tu pago…',
+      }),
+    ).toBeInTheDocument();
+  });
 });

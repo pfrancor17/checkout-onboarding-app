@@ -1,23 +1,14 @@
 import styles from './App.module.css';
 import { useAppSelector } from './app/hooks';
-import type { CheckoutStep } from './features/checkout/checkoutSlice';
 import { PaymentModal } from './features/payment/PaymentModal';
 import { ProductPage } from './features/products/ProductPage';
 import { SummaryBackdrop } from './features/summary/SummaryBackdrop';
-
-type PlaceholderStep = Exclude<
-  CheckoutStep,
-  'PRODUCT' | 'PAYMENT_FORM' | 'SUMMARY'
->;
-
-const STEP_TITLES: Record<PlaceholderStep, string> = {
-  RESULT: 'Resultado del pago',
-};
+import { ResultPage } from './features/transaction/ResultPage';
 
 /**
- * App shell. The current step comes from the store (persisted), so a
- * refresh lands the customer back where they were.
- * Each step's screen is built in its own feature branch.
+ * App shell. The 5-step flow is driven by the (persisted) checkout step:
+ * 1. Product → 2. Card/Delivery (modal) → 3. Summary → 4. Result → 5. Product
+ * A refresh lands the customer back on the step they were on.
  */
 function App() {
   const step = useAppSelector((state) => state.checkout.step);
@@ -28,20 +19,14 @@ function App() {
         <span className={styles.brand}>Checkout Store</span>
       </header>
       <main className={styles.main}>
-        {step === 'PRODUCT' || step === 'PAYMENT_FORM' ? (
-          // The payment form opens as a modal over the product page.
+        {(step === 'PRODUCT' || step === 'PAYMENT_FORM') && (
           <>
             <ProductPage />
             {step === 'PAYMENT_FORM' && <PaymentModal />}
           </>
-        ) : step === 'SUMMARY' ? (
-          <SummaryBackdrop />
-        ) : (
-          <section className={styles.placeholder} aria-live="polite">
-            <h1>{STEP_TITLES[step]}</h1>
-            <p className={styles.placeholderHint}>Pantalla en construcción.</p>
-          </section>
         )}
+        {step === 'SUMMARY' && <SummaryBackdrop />}
+        {step === 'RESULT' && <ResultPage />}
       </main>
     </div>
   );

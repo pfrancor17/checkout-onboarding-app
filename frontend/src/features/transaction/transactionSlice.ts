@@ -4,6 +4,7 @@ import { ApiError, apiRequest } from '../../shared/api/httpClient';
 import {
   checkoutFinished,
   paymentAttemptStarted,
+  paymentRetried,
   transactionCreated,
 } from '../checkout/checkoutSlice';
 import type { RequestStatus } from '../products/productsSlice';
@@ -98,6 +99,31 @@ export const payTransaction = createAsyncThunk<
   },
 );
 
+export const LOAD_ERROR_MESSAGE = 'No pudimos consultar el estado de tu pago.';
+
+/**
+ * Reads the transaction by id: used after a refresh (the result is
+ * recovered from the persisted id) and to poll a PENDING payment. The
+ * backend syncs a PENDING transaction with the gateway on every read.
+ */
+export const fetchTransaction = createAsyncThunk<
+  Transaction,
+  string,
+  { rejectValue: { message: string; status: number } }
+>('transaction/fetch', async (id, { rejectWithValue }) => {
+  try {
+    return await apiRequest<Transaction>(
+      `/transactions/${encodeURIComponent(id)}`,
+    );
+  } catch (error) {
+    return rejectWithValue(
+      error instanceof ApiError
+        ? { message: error.message, status: error.status }
+        : { message: LOAD_ERROR_MESSAGE, status: 500 },
+    );
+  }
+});
+
 const transactionSlice = createSlice({
   name: 'transaction',
   initialState: initialTransactionState,
@@ -118,7 +144,25 @@ const transactionSlice = createSlice({
         state.error = action.payload?.message ?? PAY_ERROR_MESSAGE;
         state.errorStatus = action.payload?.status ?? null;
       })
-      .addCase(checkoutFinished, () => initialTransactionState);
+      .addCase(fetchTransaction.pending, (state) => {
+        // While polling, keep showing the last known transaction.
+        if (!state.current) state.status = 'loading';
+      })
+      .addCase(fetchTransaction.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.current = action.payload;
+        state.error = null;
+        state.errorStatus = null;
+      })
+      .addCase(fetchTransaction.rejected, (state, action) => {
+        // A failed poll is not fatal if we already show a transaction.
+        if (state.current) return;
+        state.status = 'failed';
+        state.error = action.payload?.message ?? LOAD_ERROR_MESSAGE;
+        state.errorStatus = action.payload?.status ?? null;
+      })
+      .addCase(checkoutFinished, () => initialTransactionState)
+      .addCase(paymentRetried, () => initialTransactionState);
   },
 });
 

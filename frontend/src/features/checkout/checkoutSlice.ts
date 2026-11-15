@@ -105,6 +105,14 @@ const checkoutSlice = createSlice({
       state.step = 'RESULT';
       state.transactionId = action.payload;
     },
+    /** The payment failed: try again with another card, keeping delivery. */
+    paymentRetried(state) {
+      if (state.step !== 'RESULT') return;
+      state.step = 'PAYMENT_FORM';
+      state.card = null;
+      state.transactionId = null;
+      state.idempotencyKey = null;
+    },
     /** Back to the product page; personal data is wiped from the device. */
     checkoutFinished() {
       return initialCheckoutState;
@@ -121,6 +129,7 @@ export const {
   paymentAttemptStarted,
   summaryDismissed,
   transactionCreated,
+  paymentRetried,
   checkoutFinished,
 } = checkoutSlice.actions;
 
