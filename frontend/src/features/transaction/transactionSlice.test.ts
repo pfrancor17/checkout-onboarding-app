@@ -89,6 +89,30 @@ describe('payTransaction', () => {
     });
   });
 
+  it('sends the optional address fields only when filled', async () => {
+    apiRequestMock.mockResolvedValue(buildTransaction());
+    const base = summaryCheckoutState();
+    const store = storeOnSummary(
+      summaryCheckoutState({
+        delivery: {
+          ...base.delivery,
+          addressLine2: ' Apto 501 ',
+          postalCode: ' ',
+        },
+      }),
+    );
+
+    await store.dispatch(payTransaction());
+
+    const body = JSON.parse(
+      apiRequestMock.mock.calls[0][1]?.body as string,
+    ) as {
+      delivery: Record<string, string>;
+    };
+    expect(body.delivery.addressLine2).toBe('Apto 501');
+    expect(body.delivery).not.toHaveProperty('postalCode');
+  });
+
   it('reuses the same Idempotency-Key when retrying after an error', async () => {
     apiRequestMock
       .mockRejectedValueOnce(new ApiError(0, 'Sin conexión'))
