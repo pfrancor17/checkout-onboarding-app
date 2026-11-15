@@ -1,5 +1,9 @@
 import { DataSource } from 'typeorm';
 
+/**
+ * Images are bundled with the frontend (frontend/public/images/products)
+ * and served from the same domain, so no external host is needed.
+ */
 export interface ProductSeed {
   sku: string;
   name: string;
@@ -19,7 +23,7 @@ export const PRODUCT_SEEDS: ProductSeed[] = [
     priceInCents: 24_990_000,
     currency: 'COP',
     stock: 10,
-    imageUrl: 'https://picsum.photos/seed/headphones-bt-01/600/600',
+    imageUrl: '/images/products/headphones.svg',
   },
   {
     sku: 'SMARTWATCH-02',
@@ -29,7 +33,7 @@ export const PRODUCT_SEEDS: ProductSeed[] = [
     priceInCents: 35_900_000,
     currency: 'COP',
     stock: 5,
-    imageUrl: 'https://picsum.photos/seed/smartwatch-02/600/600',
+    imageUrl: '/images/products/smartwatch.svg',
   },
   {
     sku: 'SPEAKER-PORT-03',
@@ -39,7 +43,7 @@ export const PRODUCT_SEEDS: ProductSeed[] = [
     priceInCents: 15_450_000,
     currency: 'COP',
     stock: 20,
-    imageUrl: 'https://picsum.photos/seed/speaker-port-03/600/600',
+    imageUrl: '/images/products/speaker.svg',
   },
 ];
 

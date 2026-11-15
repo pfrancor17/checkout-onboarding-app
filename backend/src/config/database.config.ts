@@ -12,11 +12,16 @@ const toBoolean = (value: string | undefined): boolean =>
  */
 export const buildDatabaseOptions = (env: Env): DataSourceOptions => ({
   type: 'postgres',
-  host: env.DB_HOST,
-  port: Number(env.DB_PORT ?? 5432),
-  username: env.DB_USER,
-  password: env.DB_PASSWORD,
-  database: env.DB_NAME,
+  // A connection URL, when present, wins over the individual values.
+  ...(env.DATABASE_URL
+    ? { url: env.DATABASE_URL }
+    : {
+        host: env.DB_HOST,
+        port: Number(env.DB_PORT ?? 5432),
+        username: env.DB_USER,
+        password: env.DB_PASSWORD,
+        database: env.DB_NAME,
+      }),
   ssl: toBoolean(env.DB_SSL) ? { rejectUnauthorized: false } : false,
   synchronize: false,
   migrationsRun: toBoolean(env.DB_RUN_MIGRATIONS),

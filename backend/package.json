@@ -26,7 +26,8 @@
     "db:setup": "npm run migration:run && npm run seed",
     "lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test:int": "jest --config ./test/jest-integration.json --runInBand"
+    "test:int": "jest --config ./test/jest-integration.json --runInBand",
+    "db:prepare": "ts-node src/database/prepare-database.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -89,6 +90,7 @@
       "!database/data-source.ts",
       "!database/migrations/**",
       "!database/seeds/run-seed.ts",
+      "!database/prepare-database.ts",
       "!**/*.fixture.ts"
     ],
     "coverageDirectory": "../coverage",

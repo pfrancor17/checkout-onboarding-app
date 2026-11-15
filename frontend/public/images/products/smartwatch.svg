@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" role="img" aria-label="Reloj inteligente">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3eafc"/><stop offset="1" stop-color="#f6f8fe"/></linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d2a55"/><stop offset="1" stop-color="#0f1530"/></linearGradient>
+  </defs>
+  <rect width="600" height="450" fill="url(#bg)"/>
+  <ellipse cx="300" cy="400" rx="120" ry="14" fill="#1d2130" opacity=".08"/>
+  <rect x="245" y="30" width="110" height="110" rx="20" fill="#2a5bd7"/>
+  <rect x="245" y="310" width="110" height="110" rx="20" fill="#2a5bd7"/>
+  <rect x="200" y="110" width="200" height="230" rx="52" fill="#2f3646"/>
+  <rect x="218" y="128" width="164" height="194" rx="38" fill="url(#screen)"/>
+  <rect x="400" y="190" width="14" height="44" rx="6" fill="#2f3646"/>
+  <text x="300" y="215" text-anchor="middle" font-family="Arial, sans-serif" font-size="46" font-weight="700" fill="#ffffff">10:09</text>
+  <path d="M240 262 h28 l12 -22 l16 40 l14 -30 l10 12 h40" fill="none" stroke="#38d39f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

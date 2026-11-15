@@ -21,6 +21,7 @@ import { TransactionsModule } from './transactions/transactions.module';
       useFactory: (config: ConfigService) => ({
         ...buildDatabaseOptions({
           NODE_ENV: config.get('NODE_ENV'),
+          DATABASE_URL: config.get('DATABASE_URL'),
           DB_HOST: config.get('DB_HOST'),
           DB_PORT: config.get('DB_PORT'),
           DB_USER: config.get('DB_USER'),

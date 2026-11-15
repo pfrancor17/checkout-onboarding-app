@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" role="img" aria-label="Audífonos inalámbricos">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3eafc"/><stop offset="1" stop-color="#f6f8fe"/></linearGradient>
+    <linearGradient id="cup" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f3646"/><stop offset="1" stop-color="#1b1f2a"/></linearGradient>
+  </defs>
+  <rect width="600" height="450" fill="url(#bg)"/>
+  <ellipse cx="300" cy="392" rx="170" ry="16" fill="#1d2130" opacity=".08"/>
+  <path d="M170 260 C170 130 430 130 430 260" fill="none" stroke="#2a5bd7" stroke-width="26" stroke-linecap="round"/>
+  <path d="M170 260 C170 130 430 130 430 260" fill="none" stroke="#5b83e6" stroke-width="8" stroke-linecap="round" opacity=".6"/>
+  <rect x="128" y="236" width="96" height="140" rx="44" fill="url(#cup)"/>
+  <rect x="376" y="236" width="96" height="140" rx="44" fill="url(#cup)"/>
+  <rect x="150" y="256" width="52" height="100" rx="26" fill="#3b4357"/>
+  <rect x="398" y="256" width="52" height="100" rx="26" fill="#3b4357"/>
+  <circle cx="450" cy="300" r="6" fill="#38d39f"/>
+</svg>
