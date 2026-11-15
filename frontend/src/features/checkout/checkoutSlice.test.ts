@@ -3,6 +3,8 @@ import {
   checkoutReducer,
   checkoutStarted,
   type CheckoutState,
+  customerFieldChanged,
+  deliveryFieldChanged,
   initialCheckoutState,
   paymentFormClosed,
   paymentInfoSubmitted,
@@ -34,14 +36,47 @@ describe('checkoutSlice', () => {
       quantity: 2,
     });
 
-    state = checkoutReducer(state, paymentInfoSubmitted());
-    expect(state.step).toBe('SUMMARY');
+    state = checkoutReducer(
+      state,
+      paymentInfoSubmitted({
+        card: { brand: 'VISA', lastFour: '4242' },
+        installments: 3,
+      }),
+    );
+    expect(state).toMatchObject({
+      step: 'SUMMARY',
+      card: { brand: 'VISA', lastFour: '4242' },
+      installments: 3,
+    });
 
     state = checkoutReducer(state, transactionCreated('tx-1'));
     expect(state).toMatchObject({ step: 'RESULT', transactionId: 'tx-1' });
 
     state = checkoutReducer(state, checkoutFinished());
     expect(state).toEqual(initialCheckoutState);
+  });
+
+  it('stores the delivery data field by field', () => {
+    let state = checkoutReducer(
+      at('PAYMENT_FORM'),
+      customerFieldChanged({ field: 'email', value: 'jane@example.com' }),
+    );
+    state = checkoutReducer(
+      state,
+      deliveryFieldChanged({ field: 'city', value: 'Medellín' }),
+    );
+
+    expect(state.customer.email).toBe('jane@example.com');
+    expect(state.delivery.city).toBe('Medellín');
+  });
+
+  it('wipes the personal data when the checkout finishes', () => {
+    const state = checkoutReducer(
+      at('RESULT'),
+      customerFieldChanged({ field: 'phone', value: '3001234567' }),
+    );
+
+    expect(checkoutReducer(state, checkoutFinished()).customer.phone).toBe('');
   });
 
   it('can go back from the form and from the summary', () => {
@@ -61,7 +96,14 @@ describe('checkoutSlice', () => {
         checkoutStarted({ productId: 'x', quantity: 1 }),
       ],
       ['paymentFormClosed', at('SUMMARY'), paymentFormClosed()],
-      ['paymentInfoSubmitted', at('PRODUCT'), paymentInfoSubmitted()],
+      [
+        'paymentInfoSubmitted',
+        at('PRODUCT'),
+        paymentInfoSubmitted({
+          card: { brand: 'VISA', lastFour: '4242' },
+          installments: 1,
+        }),
+      ],
       ['summaryDismissed', at('RESULT'), summaryDismissed()],
       // e.g. a double click on "Pay": the second response is ignored
       ['transactionCreated', at('RESULT'), transactionCreated('tx-2')],

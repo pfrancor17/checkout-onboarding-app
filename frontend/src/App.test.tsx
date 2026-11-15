@@ -27,8 +27,22 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('opens the payment form as a modal over the products', async () => {
+    renderWithProviders(<App />, {
+      preloadedState: {
+        checkout: { ...initialCheckoutState, step: 'PAYMENT_FORM' },
+      },
+    });
+
+    expect(
+      screen.getByRole('dialog', { name: 'Datos de pago y entrega' }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Nuestros productos' }),
+    ).toBeInTheDocument();
+  });
+
   it.each<[CheckoutStep, string]>([
-    ['PAYMENT_FORM', 'Datos de pago y entrega'],
     ['SUMMARY', 'Resumen'],
     ['RESULT', 'Resultado del pago'],
   ])(
