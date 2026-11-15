@@ -21,7 +21,16 @@ function App() {
       <main className={styles.main}>
         {(step === 'PRODUCT' || step === 'PAYMENT_FORM') && (
           <>
-            <ProductPage />
+            {/* While the payment modal is open, the page behind it is
+                inert: it cannot get focus, be clicked or be read by
+                screen readers, so keyboard users stay inside the dialog. */}
+            <div
+              className={styles.page}
+              inert={step === 'PAYMENT_FORM'}
+              data-testid="product-page"
+            >
+              <ProductPage />
+            </div>
             {step === 'PAYMENT_FORM' && <PaymentModal />}
           </>
         )}
