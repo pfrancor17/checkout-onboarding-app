@@ -1,6 +1,10 @@
 import { setupStore } from '../../app/store';
 import { ApiError, apiRequest } from '../../shared/api/httpClient';
-import { checkoutFinished, summaryDismissed } from '../checkout/checkoutSlice';
+import {
+  checkoutFinished,
+  paymentRetried,
+  summaryDismissed,
+} from '../checkout/checkoutSlice';
 import {
   fetchAcceptanceTokens,
   fetchQuote,
@@ -128,6 +132,10 @@ describe('summarySlice', () => {
 
     store.dispatch(termsAcceptanceChanged(true));
     store.dispatch(checkoutFinished());
+    expect(store.getState().summary).toEqual(initialSummaryState);
+
+    store.dispatch(termsAcceptanceChanged(true));
+    store.dispatch(paymentRetried());
     expect(store.getState().summary).toEqual(initialSummaryState);
   });
 });

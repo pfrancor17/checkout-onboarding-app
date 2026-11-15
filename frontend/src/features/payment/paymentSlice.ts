@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { checkoutFinished } from '../checkout/checkoutSlice';
+import { checkoutFinished, paymentRetried } from '../checkout/checkoutSlice';
 
 /**
  * Session-only payment data. This slice is NOT persisted: the card token
@@ -24,7 +24,9 @@ const paymentSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(checkoutFinished, () => initialPaymentState);
+    builder
+      .addCase(checkoutFinished, () => initialPaymentState)
+      .addCase(paymentRetried, () => initialPaymentState);
   },
 });
 

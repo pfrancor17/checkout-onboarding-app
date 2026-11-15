@@ -1,4 +1,4 @@
-import { checkoutFinished } from '../checkout/checkoutSlice';
+import { checkoutFinished, paymentRetried } from '../checkout/checkoutSlice';
 import {
   cardTokenCleared,
   cardTokenized,
@@ -19,6 +19,9 @@ describe('paymentSlice', () => {
       initialPaymentState,
     );
     expect(paymentReducer(withToken, checkoutFinished())).toEqual(
+      initialPaymentState,
+    );
+    expect(paymentReducer(withToken, paymentRetried())).toEqual(
       initialPaymentState,
     );
   });

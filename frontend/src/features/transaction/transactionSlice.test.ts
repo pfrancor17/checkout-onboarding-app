@@ -1,12 +1,14 @@
 import { setupStore } from '../../app/store';
 import { summaryCheckoutState } from '../../test/checkoutState.fixture';
 import { ApiError, apiRequest } from '../../shared/api/httpClient';
-import { checkoutFinished } from '../checkout/checkoutSlice';
+import { checkoutFinished, paymentRetried } from '../checkout/checkoutSlice';
 import { initialPaymentState } from '../payment/paymentSlice';
 import { initialSummaryState } from '../summary/summarySlice';
 import { buildTransaction } from './transaction.fixture';
 import {
+  fetchTransaction,
   initialTransactionState,
+  LOAD_ERROR_MESSAGE,
   PAY_ERROR_MESSAGE,
   payTransaction,
 } from './transactionSlice';
@@ -177,6 +179,106 @@ describe('payTransaction', () => {
     await store.dispatch(payTransaction());
 
     store.dispatch(checkoutFinished());
+
+    expect(store.getState().transaction).toEqual(initialTransactionState);
+  });
+});
+
+describe('fetchTransaction', () => {
+  beforeEach(() => apiRequestMock.mockReset());
+
+  it('loads a transaction by id', async () => {
+    apiRequestMock.mockResolvedValue(buildTransaction({ status: 'DECLINED' }));
+    const store = setupStore();
+
+    const pending = store.dispatch(fetchTransaction('tx 1'));
+    expect(store.getState().transaction.status).toBe('loading');
+    await pending;
+
+    expect(apiRequestMock).toHaveBeenCalledWith('/transactions/tx%201');
+    expect(store.getState().transaction).toMatchObject({
+      status: 'succeeded',
+      current: { status: 'DECLINED' },
+      error: null,
+    });
+  });
+
+  it('keeps showing the last transaction while polling', async () => {
+    apiRequestMock.mockResolvedValue(buildTransaction({ status: 'PENDING' }));
+    const store = setupStore();
+    await store.dispatch(fetchTransaction('tx-1'));
+
+    let resolve!: (value: unknown) => void;
+    apiRequestMock.mockReturnValue(new Promise((r) => (resolve = r)));
+    const poll = store.dispatch(fetchTransaction('tx-1'));
+
+    expect(store.getState().transaction).toMatchObject({
+      status: 'succeeded',
+      current: { status: 'PENDING' },
+    });
+    resolve(buildTransaction({ status: 'APPROVED' }));
+    await poll;
+    expect(store.getState().transaction.current?.status).toBe('APPROVED');
+  });
+
+  it('a failed poll does not replace a transaction already shown', async () => {
+    apiRequestMock.mockResolvedValueOnce(
+      buildTransaction({ status: 'PENDING' }),
+    );
+    const store = setupStore();
+    await store.dispatch(fetchTransaction('tx-1'));
+
+    apiRequestMock.mockRejectedValueOnce(new ApiError(0, 'Sin conexión'));
+    await store.dispatch(fetchTransaction('tx-1'));
+
+    expect(store.getState().transaction).toMatchObject({
+      status: 'succeeded',
+      error: null,
+      current: { status: 'PENDING' },
+    });
+  });
+
+  it('reports the error when there is nothing to show yet', async () => {
+    apiRequestMock.mockRejectedValue(new ApiError(404, 'Not found'));
+    const store = setupStore();
+
+    await store.dispatch(fetchTransaction('tx-1'));
+
+    expect(store.getState().transaction).toMatchObject({
+      status: 'failed',
+      error: 'Not found',
+      errorStatus: 404,
+    });
+  });
+
+  it('uses a generic message for unexpected errors', async () => {
+    apiRequestMock.mockRejectedValue(new Error('boom'));
+    const store = setupStore();
+
+    await store.dispatch(fetchTransaction('tx-1'));
+
+    expect(store.getState().transaction).toMatchObject({
+      error: LOAD_ERROR_MESSAGE,
+      errorStatus: 500,
+    });
+  });
+
+  it('falls back to a generic message if the rejection has no payload', () => {
+    const store = setupStore();
+    store.dispatch({ type: fetchTransaction.rejected.type, error: {} });
+
+    expect(store.getState().transaction).toMatchObject({
+      error: LOAD_ERROR_MESSAGE,
+      errorStatus: null,
+    });
+  });
+
+  it('is cleared when the customer retries with another card', async () => {
+    apiRequestMock.mockResolvedValue(buildTransaction({ status: 'DECLINED' }));
+    const store = setupStore();
+    await store.dispatch(fetchTransaction('tx-1'));
+
+    store.dispatch(paymentRetried());
 
     expect(store.getState().transaction).toEqual(initialTransactionState);
   });

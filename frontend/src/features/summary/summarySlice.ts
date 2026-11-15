@@ -1,6 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { ApiError, apiRequest } from '../../shared/api/httpClient';
-import { checkoutFinished, summaryDismissed } from '../checkout/checkoutSlice';
+import {
+  checkoutFinished,
+  paymentRetried,
+  summaryDismissed,
+} from '../checkout/checkoutSlice';
 import type { RequestStatus } from '../products/productsSlice';
 import type { AcceptanceTokens, Quote } from './types';
 
@@ -114,7 +118,8 @@ const summarySlice = createSlice({
       })
       // Leaving the summary: acceptances must be given again next time.
       .addCase(summaryDismissed, () => initialSummaryState)
-      .addCase(checkoutFinished, () => initialSummaryState);
+      .addCase(checkoutFinished, () => initialSummaryState)
+      .addCase(paymentRetried, () => initialSummaryState);
   },
 });
 

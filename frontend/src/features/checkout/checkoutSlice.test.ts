@@ -9,6 +9,7 @@ import {
   paymentFormClosed,
   paymentAttemptStarted,
   paymentInfoSubmitted,
+  paymentRetried,
   summaryDismissed,
   transactionCreated,
 } from './checkoutSlice';
@@ -104,6 +105,27 @@ describe('checkoutSlice', () => {
     expect(
       checkoutReducer(at('PRODUCT'), paymentAttemptStarted('k')).idempotencyKey,
     ).toBeNull();
+  });
+
+  it('retries from a failed result keeping the delivery data', () => {
+    const failed: CheckoutState = {
+      ...at('RESULT'),
+      card: { brand: 'VISA', lastFour: '1111' },
+      idempotencyKey: 'k-1',
+      transactionId: 'tx-1',
+      delivery: { ...initialCheckoutState.delivery, city: 'Cali' },
+    };
+
+    expect(checkoutReducer(failed, paymentRetried())).toMatchObject({
+      step: 'PAYMENT_FORM',
+      card: null,
+      idempotencyKey: null,
+      transactionId: null,
+      delivery: { city: 'Cali' },
+    });
+    expect(checkoutReducer(at('SUMMARY'), paymentRetried()).step).toBe(
+      'SUMMARY',
+    );
   });
 
   it('can go back from the form and from the summary', () => {
