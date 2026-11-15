@@ -1,0 +1,92 @@
+.backdrop {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 56px);
+  margin: calc(var(--space-4) * -1);
+  background: var(--color-primary);
+}
+
+.backLayer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4) var(--space-6);
+  color: var(--color-primary-contrast);
+}
+
+.backHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.backButton {
+  width: var(--tap-target);
+  height: var(--tap-target);
+  margin-left: calc(var(--space-2) * -1);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 1.5rem;
+}
+
+.backButton:focus-visible {
+  outline-color: var(--color-primary-contrast);
+}
+
+.title {
+  font-size: 1.25rem;
+}
+
+.backContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* The front layer slides up over the back layer. */
+.frontLayer {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-4);
+  border-radius: 16px 16px 0 0;
+  background: var(--color-surface);
+  box-shadow: 0 -4px 16px rgb(29 33 48 / 12%);
+  animation: slide-up 0.3s ease-out;
+}
+
+.frontTitle {
+  font-size: 1.125rem;
+}
+
+.frontContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+/* Wider screens: keep it readable, centered like a card. */
+@media (min-width: 600px) {
+  .backdrop {
+    max-width: var(--content-max-width);
+    min-height: auto;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+  }
+
+  .frontLayer {
+    flex: none;
+  }
+}

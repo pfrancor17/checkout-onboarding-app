@@ -7,6 +7,7 @@ import {
   deliveryFieldChanged,
   initialCheckoutState,
   paymentFormClosed,
+  paymentAttemptStarted,
   paymentInfoSubmitted,
   summaryDismissed,
   transactionCreated,
@@ -77,6 +78,32 @@ describe('checkoutSlice', () => {
     );
 
     expect(checkoutReducer(state, checkoutFinished()).customer.phone).toBe('');
+  });
+
+  it('keeps one idempotency key per payment attempt', () => {
+    let state = checkoutReducer(at('SUMMARY'), paymentAttemptStarted('key-1'));
+    expect(state.idempotencyKey).toBe('key-1');
+
+    // A second start keeps the first key (retry of the same attempt).
+    state = checkoutReducer(state, paymentAttemptStarted('key-2'));
+    expect(state.idempotencyKey).toBe('key-1');
+
+    // New card data = new attempt = new key.
+    state = checkoutReducer(state, summaryDismissed());
+    state = checkoutReducer(
+      state,
+      paymentInfoSubmitted({
+        card: { brand: 'VISA', lastFour: '1111' },
+        installments: 1,
+      }),
+    );
+    expect(state.idempotencyKey).toBeNull();
+  });
+
+  it('only starts a payment attempt on the summary', () => {
+    expect(
+      checkoutReducer(at('PRODUCT'), paymentAttemptStarted('k')).idempotencyKey,
+    ).toBeNull();
   });
 
   it('can go back from the form and from the summary', () => {

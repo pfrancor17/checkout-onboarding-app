@@ -42,10 +42,19 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it.each<[CheckoutStep, string]>([
-    ['SUMMARY', 'Resumen'],
-    ['RESULT', 'Resultado del pago'],
-  ])(
+  it('shows the summary backdrop on the summary step', () => {
+    renderWithProviders(<App />, {
+      preloadedState: {
+        checkout: { ...initialCheckoutState, step: 'SUMMARY' },
+      },
+    });
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Resumen de tu compra' }),
+    ).toBeInTheDocument();
+  });
+
+  it.each<[CheckoutStep, string]>([['RESULT', 'Resultado del pago']])(
     'restores the %s step from the store (e.g. after a refresh)',
     (step, title) => {
       renderWithProviders(<App />, {
