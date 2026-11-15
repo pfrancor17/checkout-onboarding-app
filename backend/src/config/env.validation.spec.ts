@@ -10,6 +10,7 @@ describe('envValidationSchema', () => {
     PAYMENT_PUBLIC_KEY: 'pub_test',
     PAYMENT_PRIVATE_KEY: 'prv_test',
     PAYMENT_INTEGRITY_SECRET: 'integrity_test',
+    PAYMENT_EVENTS_SECRET: 'events_test',
   };
 
   it('accepts a minimal env and applies defaults', () => {
@@ -52,5 +53,14 @@ describe('envValidationSchema', () => {
     });
 
     expect(error?.message).toContain('PAYMENT_API_URL');
+  });
+
+  it('requires the events secret (webhook signatures)', () => {
+    const env: Record<string, string> = { ...validEnv };
+    delete env.PAYMENT_EVENTS_SECRET;
+
+    const { error } = envValidationSchema.validate(env);
+
+    expect(error?.message).toContain('PAYMENT_EVENTS_SECRET');
   });
 });

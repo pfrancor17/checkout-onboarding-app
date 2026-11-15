@@ -10,6 +10,8 @@ export interface PaymentGatewayConfig {
 }
 
 export const PAYMENT_GATEWAY_CONFIG = Symbol('PAYMENT_GATEWAY_CONFIG');
+/** Secret used to verify the signature of the gateway's events. */
+export const PAYMENT_EVENTS_SECRET = Symbol('PAYMENT_EVENTS_SECRET');
 
 export const paymentGatewayConfigFactory = (
   config: ConfigService,
@@ -20,6 +22,9 @@ export const paymentGatewayConfigFactory = (
   integritySecret: config.getOrThrow<string>('PAYMENT_INTEGRITY_SECRET'),
   timeoutMs: Number(config.get('PAYMENT_TIMEOUT_MS', 8000)),
 });
+
+export const paymentEventsSecretFactory = (config: ConfigService): string =>
+  config.getOrThrow<string>('PAYMENT_EVENTS_SECRET');
 
 export const paymentPollingConfigFactory = (
   config: ConfigService,

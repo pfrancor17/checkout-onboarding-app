@@ -15,6 +15,9 @@ export interface TransactionRepository {
 
   findByIdempotencyKey(key: string): Promise<TransactionDetails | null>;
 
+  /** Our reference is what the gateway sends back in its events. */
+  findByReference(reference: string): Promise<TransactionDetails | null>;
+
   attachGatewayTransaction(
     id: string,
     gatewayTransactionId: string,

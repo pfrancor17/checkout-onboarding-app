@@ -6,9 +6,11 @@ import { ProductsModule } from '../products/products.module';
 import { CreateTransactionUseCase } from './application/create-transaction.use-case';
 import { GetQuoteUseCase } from './application/get-quote.use-case';
 import { GetTransactionUseCase } from './application/get-transaction.use-case';
+import { HandlePaymentEventUseCase } from './application/handle-payment-event.use-case';
 import { CHECKOUT_FEES } from './domain/transaction';
 import { TRANSACTION_REPOSITORY } from './domain/transaction.repository';
 import { checkoutFeesFactory } from './infrastructure/checkout-fees.config';
+import { PaymentEventsController } from './infrastructure/http/payment-events.controller';
 import { QuotesController } from './infrastructure/http/quotes.controller';
 import { TransactionsController } from './infrastructure/http/transactions.controller';
 import { TransactionOrmEntity } from './infrastructure/persistence/transaction.orm-entity';
@@ -20,7 +22,11 @@ import { TypeOrmTransactionRepository } from './infrastructure/persistence/typeo
     ProductsModule,
     PaymentsModule,
   ],
-  controllers: [TransactionsController, QuotesController],
+  controllers: [
+    TransactionsController,
+    QuotesController,
+    PaymentEventsController,
+  ],
   providers: [
     {
       provide: CHECKOUT_FEES,
@@ -34,6 +40,7 @@ import { TypeOrmTransactionRepository } from './infrastructure/persistence/typeo
     GetQuoteUseCase,
     CreateTransactionUseCase,
     GetTransactionUseCase,
+    HandlePaymentEventUseCase,
   ],
 })
 export class TransactionsModule {}

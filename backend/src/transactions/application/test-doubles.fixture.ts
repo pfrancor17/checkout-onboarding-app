@@ -13,6 +13,7 @@ export const mockTransactionRepository =
     createPending: jest.fn(),
     findById: jest.fn(),
     findByIdempotencyKey: jest.fn(),
+    findByReference: jest.fn(),
     attachGatewayTransaction: jest.fn(),
     finalize: jest.fn(),
   });

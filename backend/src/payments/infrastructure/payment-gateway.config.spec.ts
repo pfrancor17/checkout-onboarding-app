@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import {
+  paymentEventsSecretFactory,
   paymentGatewayConfigFactory,
   paymentPollingConfigFactory,
 } from './payment-gateway.config';
@@ -30,6 +31,13 @@ describe('payment gateway config', () => {
 
   it('fails fast when a key is missing', () => {
     expect(() => paymentGatewayConfigFactory(configFrom({}))).toThrow();
+  });
+
+  it('reads the events secret and fails fast without it', () => {
+    expect(
+      paymentEventsSecretFactory(configFrom({ PAYMENT_EVENTS_SECRET: 'ev' })),
+    ).toBe('ev');
+    expect(() => paymentEventsSecretFactory(configFrom({}))).toThrow();
   });
 
   it('uses polling defaults', () => {
