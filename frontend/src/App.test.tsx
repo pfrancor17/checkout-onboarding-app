@@ -24,6 +24,27 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('keeps the product page interactive when no modal is open', async () => {
+    renderWithProviders(<App />);
+
+    await screen.findByRole('heading', { name: 'Nuestros productos' });
+    expect(screen.getByTestId('product-page')).not.toHaveAttribute('inert');
+  });
+
+  it('makes the page behind the payment modal inert (focus stays in the dialog)', () => {
+    renderWithProviders(<App />, {
+      preloadedState: {
+        checkout: { ...initialCheckoutState, step: 'PAYMENT_FORM' },
+      },
+    });
+
+    const page = screen.getByTestId('product-page');
+    const dialog = screen.getByRole('dialog');
+    expect(page).toHaveAttribute('inert');
+    // The dialog itself is outside the inert area.
+    expect(page.contains(dialog)).toBe(false);
+  });
+
   it('opens the payment form as a modal over the products', async () => {
     renderWithProviders(<App />, {
       preloadedState: {
