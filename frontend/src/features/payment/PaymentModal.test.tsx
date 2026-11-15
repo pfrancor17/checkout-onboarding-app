@@ -114,10 +114,12 @@ describe('PaymentModal', () => {
     await type('CVC', '123');
     await type('Correo electrónico', 'jane@example.com');
     await type('Código postal (opcional)', '050021');
+    await type('Apartamento, torre, oficina (opcional)', 'Apto 501');
 
     const state = JSON.stringify(store.getState());
     expect(store.getState().checkout.customer.email).toBe('jane@example.com');
     expect(store.getState().checkout.delivery.postalCode).toBe('050021');
+    expect(store.getState().checkout.delivery.addressLine2).toBe('Apto 501');
     expect(state).not.toContain('4242424242424242');
     expect(state).not.toContain('4242 4242');
   });

@@ -16,6 +16,8 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/test/**',
     '!src/**/*.fixture.ts',
+    // Type-only files: no runtime code to cover.
+    '!src/**/types.ts',
     '!src/config/env.ts',
   ],
   coverageReporters: ['text', 'lcov', 'json-summary'],
