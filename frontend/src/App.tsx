@@ -3,11 +3,14 @@ import { useAppSelector } from './app/hooks';
 import type { CheckoutStep } from './features/checkout/checkoutSlice';
 import { PaymentModal } from './features/payment/PaymentModal';
 import { ProductPage } from './features/products/ProductPage';
+import { SummaryBackdrop } from './features/summary/SummaryBackdrop';
 
-type PlaceholderStep = Exclude<CheckoutStep, 'PRODUCT' | 'PAYMENT_FORM'>;
+type PlaceholderStep = Exclude<
+  CheckoutStep,
+  'PRODUCT' | 'PAYMENT_FORM' | 'SUMMARY'
+>;
 
 const STEP_TITLES: Record<PlaceholderStep, string> = {
-  SUMMARY: 'Resumen',
   RESULT: 'Resultado del pago',
 };
 
@@ -31,6 +34,8 @@ function App() {
             <ProductPage />
             {step === 'PAYMENT_FORM' && <PaymentModal />}
           </>
+        ) : step === 'SUMMARY' ? (
+          <SummaryBackdrop />
         ) : (
           <section className={styles.placeholder} aria-live="polite">
             <h1>{STEP_TITLES[step]}</h1>

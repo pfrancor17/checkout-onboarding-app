@@ -23,6 +23,8 @@ export interface CheckoutState {
   delivery: DeliveryForm;
   card: CardSummary | null;
   installments: number;
+  /** One per payment attempt, so a retry never charges twice. */
+  idempotencyKey: string | null;
   /** Set once the backend created the transaction; used to recover it. */
   transactionId: string | null;
 }
@@ -41,6 +43,7 @@ export const initialCheckoutState: CheckoutState = {
   },
   card: null,
   installments: 1,
+  idempotencyKey: null,
   transactionId: null,
 };
 
@@ -86,6 +89,12 @@ const checkoutSlice = createSlice({
       state.step = 'SUMMARY';
       state.card = action.payload.card;
       state.installments = action.payload.installments;
+      // New card data = new payment attempt.
+      state.idempotencyKey = null;
+    },
+    paymentAttemptStarted(state, action: PayloadAction<string>) {
+      if (state.step !== 'SUMMARY' || state.idempotencyKey) return;
+      state.idempotencyKey = action.payload;
     },
     summaryDismissed(state) {
       if (state.step !== 'SUMMARY') return;
@@ -109,6 +118,7 @@ export const {
   deliveryFieldChanged,
   paymentFormClosed,
   paymentInfoSubmitted,
+  paymentAttemptStarted,
   summaryDismissed,
   transactionCreated,
   checkoutFinished,

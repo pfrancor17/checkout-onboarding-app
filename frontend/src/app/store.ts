@@ -16,12 +16,16 @@ import {
 } from '../features/checkout/checkoutSlice';
 import { paymentReducer } from '../features/payment/paymentSlice';
 import { productsReducer } from '../features/products/productsSlice';
+import { summaryReducer } from '../features/summary/summarySlice';
+import { transactionReducer } from '../features/transaction/transactionSlice';
 import { createSafeStorage } from './persistStorage';
 
 export const rootReducer = combineReducers({
   checkout: checkoutReducer,
   products: productsReducer,
   payment: paymentReducer,
+  summary: summaryReducer,
+  transaction: transactionReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
@@ -30,7 +34,8 @@ export type RootState = ReturnType<typeof rootReducer>;
  * Progress survives a page refresh via localStorage.
  * Only the `checkout` slice is persisted (step, product, delivery data,
  * card brand + last 4). NOT persisted: `products` (always fetched fresh)
- * and `payment` (the card token, memory only). Card number, CVC and
+ * `payment` (the card token, memory only), `summary` (single-use
+ * acceptance tokens) and `transaction` (re-fetched by id). Card number, CVC and
  * expiry never enter the store at all.
  */
 /**
