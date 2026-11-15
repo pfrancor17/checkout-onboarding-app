@@ -7,6 +7,7 @@ export type AppErrorCode =
   | 'NOT_FOUND'
   | 'VALIDATION'
   | 'CONFLICT'
+  | 'UNAUTHORIZED'
   | 'PAYMENT_GATEWAY'
   | 'GATEWAY_UNAVAILABLE'
   | 'UNEXPECTED';
@@ -29,6 +30,11 @@ export const validationError = (message: string): AppError => ({
 
 export const conflict = (message: string): AppError => ({
   code: 'CONFLICT',
+  message,
+});
+
+export const unauthorized = (message: string): AppError => ({
+  code: 'UNAUTHORIZED',
   message,
 });
 

@@ -187,6 +187,15 @@ describe('TypeOrmTransactionRepository', () => {
       );
     });
 
+    it('findByReference filters by our reference', async () => {
+      await repository.findByReference('ref-1');
+
+      expect(manager.findOne).toHaveBeenCalledWith(
+        TransactionOrmEntity,
+        expect.objectContaining({ where: { reference: 'ref-1' } }),
+      );
+    });
+
     it('returns null when nothing is found', async () => {
       manager.findOne.mockResolvedValue(null);
 

@@ -74,6 +74,10 @@ export class TypeOrmTransactionRepository implements TransactionRepository {
     return this.findOne({ idempotencyKey: key });
   }
 
+  findByReference(reference: string): Promise<TransactionDetails | null> {
+    return this.findOne({ reference });
+  }
+
   async attachGatewayTransaction(
     id: string,
     gatewayTransactionId: string,

@@ -5,6 +5,7 @@ import {
   gatewayUnavailable,
   notFound,
   paymentGatewayError,
+  unauthorized,
   unexpected,
   validationError,
 } from '../../domain/app-error';
@@ -22,6 +23,7 @@ describe('toHttpException', () => {
     [notFound('missing'), 404],
     [validationError('bad input'), 422],
     [conflict('out of stock'), 409],
+    [unauthorized('bad signature'), 401],
     [paymentGatewayError('gateway rejected', new Error('422')), 502],
     [gatewayUnavailable('gateway timeout', new Error('timeout')), 503],
     [unexpected(new Error('db')), 500],

@@ -6,6 +6,7 @@ import {
   Logger,
   NotFoundException,
   ServiceUnavailableException,
+  UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { AppError } from '../../domain/app-error';
@@ -32,6 +33,8 @@ export const toHttpException = (error: AppError): HttpException => {
       return new UnprocessableEntityException(error.message);
     case 'CONFLICT':
       return new ConflictException(error.message);
+    case 'UNAUTHORIZED':
+      return new UnauthorizedException(error.message);
     case 'PAYMENT_GATEWAY':
       logger.warn(`${error.message}: ${describeCause(error.cause)}`);
       return new BadGatewayException(error.message);

@@ -11,7 +11,9 @@ import { PAYMENT_GATEWAY } from './domain/payment-gateway.port';
 import { PaymentsController } from './infrastructure/http/payments.controller';
 import { HttpPaymentGateway } from './infrastructure/http-payment-gateway';
 import {
+  PAYMENT_EVENTS_SECRET,
   PAYMENT_GATEWAY_CONFIG,
+  paymentEventsSecretFactory,
   paymentGatewayConfigFactory,
   paymentPollingConfigFactory,
 } from './infrastructure/payment-gateway.config';
@@ -29,11 +31,16 @@ import {
       inject: [ConfigService],
       useFactory: paymentPollingConfigFactory,
     },
+    {
+      provide: PAYMENT_EVENTS_SECRET,
+      inject: [ConfigService],
+      useFactory: paymentEventsSecretFactory,
+    },
     { provide: CLOCK, useValue: systemClock },
     { provide: PAYMENT_GATEWAY, useClass: HttpPaymentGateway },
     GetAcceptanceTokensUseCase,
     PaymentStatusPoller,
   ],
-  exports: [PAYMENT_GATEWAY, PaymentStatusPoller, CLOCK],
+  exports: [PAYMENT_GATEWAY, PaymentStatusPoller, CLOCK, PAYMENT_EVENTS_SECRET],
 })
 export class PaymentsModule {}
