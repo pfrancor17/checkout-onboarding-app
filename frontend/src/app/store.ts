@@ -8,27 +8,57 @@ import {
   PURGE,
   REGISTER,
   REHYDRATE,
+  type PersistedState,
 } from 'redux-persist';
-import { checkoutReducer } from '../features/checkout/checkoutSlice';
+import {
+  checkoutReducer,
+  initialCheckoutState,
+} from '../features/checkout/checkoutSlice';
+import { paymentReducer } from '../features/payment/paymentSlice';
 import { productsReducer } from '../features/products/productsSlice';
 import { createSafeStorage } from './persistStorage';
 
 export const rootReducer = combineReducers({
   checkout: checkoutReducer,
   products: productsReducer,
+  payment: paymentReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
 
 /**
  * Progress survives a page refresh via localStorage.
- * Only whitelisted slices are persisted. Card data (number, CVC, expiry)
- * is NEVER put in the store: it lives only inside the payment form and
- * is sent straight to the gateway to be tokenized.
+ * Only the `checkout` slice is persisted (step, product, delivery data,
+ * card brand + last 4). NOT persisted: `products` (always fetched fresh)
+ * and `payment` (the card token, memory only). Card number, CVC and
+ * expiry never enter the store at all.
  */
+/**
+ * Saved state from an older version of the app may miss newer fields.
+ * Merging it over the defaults keeps a returning customer's progress
+ * without ever rehydrating an incomplete (crashing) state.
+ */
+export const migratePersistedState = (
+  state: PersistedState,
+): Promise<PersistedState> => {
+  if (!state) return Promise.resolve(state);
+  const saved = (state as { checkout?: Partial<typeof initialCheckoutState> })
+    .checkout;
+  return Promise.resolve({
+    ...state,
+    checkout: {
+      ...initialCheckoutState,
+      ...saved,
+      customer: { ...initialCheckoutState.customer, ...saved?.customer },
+      delivery: { ...initialCheckoutState.delivery, ...saved?.delivery },
+    },
+  } as PersistedState);
+};
+
 export const persistConfig = {
   key: 'checkout-app',
-  version: 1,
+  version: 2,
+  migrate: migratePersistedState,
   storage: createSafeStorage(),
   whitelist: ['checkout'] as Array<keyof RootState>,
 };

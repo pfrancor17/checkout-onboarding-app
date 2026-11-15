@@ -1,10 +1,12 @@
 import styles from './App.module.css';
 import { useAppSelector } from './app/hooks';
 import type { CheckoutStep } from './features/checkout/checkoutSlice';
+import { PaymentModal } from './features/payment/PaymentModal';
 import { ProductPage } from './features/products/ProductPage';
 
-const STEP_TITLES: Record<Exclude<CheckoutStep, 'PRODUCT'>, string> = {
-  PAYMENT_FORM: 'Datos de pago y entrega',
+type PlaceholderStep = Exclude<CheckoutStep, 'PRODUCT' | 'PAYMENT_FORM'>;
+
+const STEP_TITLES: Record<PlaceholderStep, string> = {
   SUMMARY: 'Resumen',
   RESULT: 'Resultado del pago',
 };
@@ -23,8 +25,12 @@ function App() {
         <span className={styles.brand}>Checkout Store</span>
       </header>
       <main className={styles.main}>
-        {step === 'PRODUCT' ? (
-          <ProductPage />
+        {step === 'PRODUCT' || step === 'PAYMENT_FORM' ? (
+          // The payment form opens as a modal over the product page.
+          <>
+            <ProductPage />
+            {step === 'PAYMENT_FORM' && <PaymentModal />}
+          </>
         ) : (
           <section className={styles.placeholder} aria-live="polite">
             <h1>{STEP_TITLES[step]}</h1>
