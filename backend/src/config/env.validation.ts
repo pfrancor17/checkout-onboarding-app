@@ -1,5 +1,11 @@
 import * as Joi from 'joi';
 
+const requiredWithoutUrl = Joi.string().when('DATABASE_URL', {
+  is: Joi.exist(),
+  then: Joi.optional(),
+  otherwise: Joi.required(),
+});
+
 export const envValidationSchema = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'test', 'production')
@@ -7,11 +13,14 @@ export const envValidationSchema = Joi.object({
   PORT: Joi.number().port().default(3000),
   CORS_ORIGIN: Joi.string().default('http://localhost:5173'),
 
-  DB_HOST: Joi.string().required(),
+  // Either a single connection URL (managed hosts such as Render provide
+  // one) or the individual DB_* values.
+  DATABASE_URL: Joi.string().uri({ scheme: ['postgres', 'postgresql'] }),
+  DB_HOST: requiredWithoutUrl,
   DB_PORT: Joi.number().port().default(5432),
-  DB_USER: Joi.string().required(),
-  DB_PASSWORD: Joi.string().required(),
-  DB_NAME: Joi.string().required(),
+  DB_USER: requiredWithoutUrl,
+  DB_PASSWORD: requiredWithoutUrl,
+  DB_NAME: requiredWithoutUrl,
   DB_SSL: Joi.boolean().default(false),
   DB_RUN_MIGRATIONS: Joi.boolean().default(false),
 

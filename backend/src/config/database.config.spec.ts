@@ -46,4 +46,15 @@ describe('buildDatabaseOptions', () => {
     delete env.DB_PORT;
     expect(buildDatabaseOptions(env)).toMatchObject({ port: 5432 });
   });
+
+  it('uses DATABASE_URL instead of the individual values when present', () => {
+    const options = buildDatabaseOptions({
+      DATABASE_URL: 'postgresql://user:secret@db.internal:5432/checkout',
+    });
+
+    expect(options).toMatchObject({
+      url: 'postgresql://user:secret@db.internal:5432/checkout',
+    });
+    expect(options).not.toHaveProperty('host');
+  });
 });

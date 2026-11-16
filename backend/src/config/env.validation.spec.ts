@@ -63,4 +63,26 @@ describe('envValidationSchema', () => {
 
     expect(error?.message).toContain('PAYMENT_EVENTS_SECRET');
   });
+
+  it('accepts DATABASE_URL in place of the individual DB_* values', () => {
+    const env: Record<string, string> = {
+      ...validEnv,
+      DATABASE_URL: 'postgresql://user:secret@db.internal:5432/checkout',
+    };
+    delete env.DB_HOST;
+    delete env.DB_USER;
+    delete env.DB_PASSWORD;
+    delete env.DB_NAME;
+
+    expect(envValidationSchema.validate(env).error).toBeUndefined();
+  });
+
+  it('rejects a DATABASE_URL that is not a postgres URL', () => {
+    const { error } = envValidationSchema.validate({
+      ...validEnv,
+      DATABASE_URL: 'mysql://user:secret@db.internal/checkout',
+    });
+
+    expect(error?.message).toContain('DATABASE_URL');
+  });
 });

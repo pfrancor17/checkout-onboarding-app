@@ -1,0 +1,8 @@
+# Terraform state contains secrets (DB password, gateway keys): never commit it.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+.terraform.tfstate.lock.info
