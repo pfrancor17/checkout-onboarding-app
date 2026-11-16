@@ -27,7 +27,9 @@ Toda la infraestructura está definida como código en esta carpeta.
 
 ## ¿Por qué Lightsail y Terraform?
 
-La cuenta usa el **plan gratuito de AWS**, que bloquea CloudFormation (y por lo tanto CDK), EC2, RDS, Lambda, ECR y SSM mediante una política de la organización. Permite **S3, CloudFront y Lightsail**. Terraform llama directamente a las APIs de AWS, así que no depende de CloudFormation.
+La cuenta nueva quedó con una política de la organización (SCP) que bloquea CloudFormation (y por lo tanto CDK), EC2, RDS, Lambda, ECR y SSM. Por eso se eligieron Lightsail, S3 y CloudFront con Terraform, que llama directamente a las APIs de AWS sin pasar por CloudFormation.
+
+> **Estado:** la misma política también terminó negando la creación de recursos en S3 y Lightsail, incluso después de pasar la cuenta al plan de pago, así que la app se publicó en Render ([`render.yaml`](../render.yaml)). Este código queda listo y validado en CI: con una cuenta sin esa restricción se despliega con `./infra/scripts/deploy.sh`.
 
 - **Un solo dominio HTTPS:** CloudFront sirve el frontend y reenvía `/api/*` al contenedor. El navegador no necesita CORS ni hay que comprar un dominio.
 - **Base de datos privada:** solo los recursos de Lightsail de la misma Región (la API) llegan a ella.
@@ -66,7 +68,7 @@ Para actualizar después de un cambio, se corre el mismo script.
 
 ## Costo estimado
 
-Contenedor `nano` ~US$ 7/mes + PostgreSQL `micro` ~US$ 15/mes + S3/CloudFront (céntimos). Con el plan gratuito sale de los créditos.
+Contenedor `nano` ~US$ 7/mes + PostgreSQL `micro` ~US$ 15/mes + S3/CloudFront (céntimos).
 
 ## Webhook de la pasarela
 
