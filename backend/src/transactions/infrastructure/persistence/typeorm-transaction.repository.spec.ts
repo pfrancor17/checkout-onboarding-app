@@ -143,6 +143,15 @@ describe('TypeOrmTransactionRepository', () => {
       expect(result.isErr && result.error.code).toBe('CONFLICT');
     });
 
+    it('rethrows a unique violation that is not about the idempotency key', async () => {
+      const violation = { code: '23505' };
+      manager.save.mockReset().mockRejectedValue(violation);
+
+      await expect(repository.createPending(buildOrder())).rejects.toBe(
+        violation,
+      );
+    });
+
     it('rethrows any other database error', async () => {
       manager.save.mockReset().mockRejectedValue(new Error('connection lost'));
 
