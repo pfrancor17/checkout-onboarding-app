@@ -169,7 +169,7 @@ erDiagram
 
 ## API
 
-Documentación interactiva completa en **[Swagger](https://checkout-onboarding-api.onrender.com/api/docs)**. Todas las rutas llevan el prefijo `/api`.
+Documentación interactiva completa en **[Swagger](https://checkout-onboarding-api.onrender.com/api/docs)**. Todas las rutas llevan el prefijo `/api`; abrir la raíz del dominio de la API (`/`) redirige a Swagger.
 
 | Método | Ruta | Para qué |
 |---|---|---|
@@ -225,16 +225,16 @@ Todos los tests están escritos con **Jest**. El reto pide más de 80 % de cober
 
 Reducers y thunks de Redux, validaciones de tarjeta y entrega, componentes con Testing Library (interacción real: escribir, hacer clic, recargar el estado) y el cliente HTTP.
 
-### Backend: 247 tests
+### Backend: 250 tests
 
 | Statements | Branches | Functions | Lines |
 |---|---|---|---|
-| **100 %** (895/895) | **88,67 %** (329/371) | **100 %** (194/194) | **100 %** (772/772) |
+| **100 %** (907/907) | **88,67 %** (329/371) | **100 %** (195/195) | **100 %** (782/782) |
 
 | Suite | Tests | Qué prueba |
 |---|---|---|
-| Unitarios | 214 en 34 suites | Dominio, casos de uso (ROP), adaptadores, controllers, DTOs, configuración y mapeo ORM |
-| E2E | 26 en 5 suites | Endpoints HTTP reales con supertest: códigos de estado, validación de los bodies, webhook firmado |
+| Unitarios | 215 en 35 suites | Dominio, casos de uso (ROP), adaptadores, controllers, DTOs, configuración y mapeo ORM |
+| E2E | 28 en 5 suites | Endpoints HTTP reales con supertest: códigos de estado, validación de los bodies, webhook firmado |
 | Integración | 7 en 1 suite | El repositorio contra **PostgreSQL real**: reserva atómica de stock con pedidos concurrentes, liquidación única, idempotencia |
 
 **Sobre las ramas del backend:** las 42 ramas sin cubrir no son lógica de la aplicación. Las genera TypeScript al compilar los decoradores de NestJS y TypeORM (`emitDecoratorMetadata`), del tipo `typeof X !== "undefined" ? X : Object`, una por cada parámetro o propiedad decorada. Nunca se ejecutan, así que no se pueden cubrir con tests. Toda la lógica escrita a mano está cubierta al 100 %.
