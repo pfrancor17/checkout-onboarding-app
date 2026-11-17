@@ -208,7 +208,9 @@ frontend/src/
 - **Las llaves privadas viven solo en el servidor**, como variables de entorno validadas al arrancar. No están en el repositorio ni en el bundle del navegador.
 - **Firma de integridad** en cada cobro (SHA-256 de referencia + monto + moneda + secreto), calculada en el backend.
 - **Datos personales enmascarados** en las respuestas de clientes y entregas.
-- **Cabeceras de seguridad:** helmet en la API y cabeceras equivalentes en el sitio estático. CORS limitado al dominio del frontend.
+- **HTTPS en todo:** HTTP redirige a HTTPS y los dos sitios envían HSTS.
+- **Cabeceras de seguridad (OWASP Secure Headers):** helmet en la API. En el frontend ([`render.yaml`](render.yaml)): `Content-Security-Policy` (solo scripts, estilos e imágenes propios, sin `eval` ni código inline, la página no se puede embeber), `Permissions-Policy` (cámara, micrófono, ubicación y pagos del navegador desactivados), `Cross-Origin-Opener-Policy`, `X-Frame-Options`, `X-Content-Type-Options` y `Referrer-Policy`.
+- **CORS** limitado al dominio del frontend.
 - **Base de datos privada:** en el despliegue no acepta conexiones externas, solo la de la API.
 
 ## Tests y cobertura

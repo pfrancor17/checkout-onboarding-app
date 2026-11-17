@@ -84,9 +84,25 @@ services:
       - path: /*
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
+      # Only our own scripts, styles and images run on the page. connect-src
+      # allows HTTPS calls: the API and the payment gateway (card tokenization).
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+      # The app needs no device features: turn them all off.
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+      - path: /*
+        name: Cross-Origin-Opener-Policy
+        value: same-origin
       - path: /assets/*
         name: Cache-Control
         value: public, max-age=31536000, immutable
+      # Product images keep their names: cache for a day.
+      - path: /images/*
+        name: Cache-Control
+        value: public, max-age=86400
     envVars:
       # API URL, e.g. https://checkout-onboarding-api.onrender.com/api
       - key: VITE_API_URL
