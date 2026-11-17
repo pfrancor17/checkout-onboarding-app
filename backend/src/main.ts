@@ -4,6 +4,11 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import {
+  API_DOCS_PATH,
+  GLOBAL_PREFIX,
+  GLOBAL_PREFIX_OPTIONS,
+} from './shared/infrastructure/http/global-prefix';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -16,7 +21,7 @@ async function bootstrap(): Promise<void> {
       .split(',')
       .map((origin) => origin.trim()),
   });
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(GLOBAL_PREFIX, GLOBAL_PREFIX_OPTIONS);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -31,7 +36,7 @@ async function bootstrap(): Promise<void> {
     .setVersion('1.0')
     .build();
   SwaggerModule.setup(
-    'api/docs',
+    API_DOCS_PATH,
     app,
     SwaggerModule.createDocument(app, swaggerConfig),
   );
