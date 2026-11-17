@@ -10,7 +10,7 @@ App para comprar un producto con tarjeta de crédito a través de una pasarela d
 | **API — Swagger (público)** | https://checkout-onboarding-api.onrender.com/api/docs |
 | **Health check** | https://checkout-onboarding-api.onrender.com/api/health |
 
-> La API corre en el plan gratuito de Render y se duerme tras 15 minutos sin tráfico. Si la tienda tarda en mostrar los productos la primera vez, la API está despertando y en menos de un minuto queda lista.
+> **Sobre AWS:** la app quedó publicada en Render y no en AWS por una restricción de la cuenta de AWS ajena al proyecto. La infraestructura de AWS está completa como código. Ver [¿Por qué no está en AWS?](#por-qué-no-está-en-aws).
 
 **Para probar el pago** (sandbox, no se cobra nada): tarjeta `4242 4242 4242 4242` para un pago **aprobado** o `4111 1111 1111 1111` para uno **rechazado**, con cualquier fecha futura, cualquier CVC de 3 dígitos y cualquier nombre.
 
@@ -256,12 +256,40 @@ npm run test:int        # repositorio contra PostgreSQL
 | Recurso | Detalle |
 |---|---|
 | `checkout-onboarding-db` | PostgreSQL 16 sin acceso externo (solo la red privada de Render) |
-| `checkout-onboarding-api` | La API en Docker ([`backend/Dockerfile`](backend/Dockerfile)), con health check en `/api/health`. Al arrancar aplica las migraciones y el seed de forma idempotente |
+| `checkout-onboarding-api` | La API en Docker ([`backend/Dockerfile`](backend/Dockerfile)), siempre encendida (plan Starter) y con health check en `/api/health`. Al arrancar aplica las migraciones y el seed de forma idempotente |
 | `checkout-onboarding-web` | El frontend como sitio estático en CDN, con cabeceras de seguridad |
 
 Las llaves de la pasarela se cargan en el panel de Render (`sync: false`) y nunca pasan por el repositorio.
 
-**AWS (infraestructura lista como código).** En [`infra/`](infra/) está la misma app definida con **Terraform** para AWS: PostgreSQL y la API en Lightsail, y el frontend en S3 privado detrás de CloudFront, que también enruta `/api/*` a la API, todo bajo un solo dominio HTTPS. El código está validado en CI (`terraform fmt` y `validate`, shellcheck de los scripts, build de la imagen) y se despliega con un solo comando (`./infra/scripts/deploy.sh`). No se pudo publicar en AWS porque la cuenta nueva quedó con una política de la organización (SCP) que niega la creación de recursos en S3 y Lightsail incluso después de pasar al plan de pago. Por eso la app se publicó en Render, y el reto permite cualquier proveedor. Detalles en [`infra/README.md`](infra/README.md).
+### ¿Por qué no está en AWS?
+
+El reto recomienda AWS, así que la primera opción fue AWS y **toda la infraestructura está escrita como código** en [`infra/`](infra/) con Terraform:
+
+| Pieza | Recurso de AWS |
+|---|---|
+| Base de datos | PostgreSQL 16 administrado en Lightsail, privado, con backups y contraseña aleatoria |
+| API | Lightsail Container Service con la misma imagen Docker y health check en `/api/health` |
+| Frontend | S3 privado (Origin Access Control) detrás de CloudFront, con cabeceras de seguridad |
+| Un solo dominio HTTPS | CloudFront enruta `/api/*` a la API, así el navegador no necesita CORS |
+
+El código está validado en CI ([`infra-ci.yml`](.github/workflows/infra-ci.yml): `terraform fmt` y `validate`, shellcheck de los scripts y build de la imagen) y `terraform plan` genera los 11 recursos sin errores. Todo se despliega con un solo comando: `./infra/scripts/deploy.sh`.
+
+**Qué pasó.** La cuenta de AWS es nueva y quedó dentro de una organización administrada por AWS con una política de control de servicios (SCP) que niega la creación de recursos. Así respondió AWS al aplicar Terraform:
+
+```
+AccessDeniedException: User: arn:aws:iam::<cuenta>:user/checkout-deployer is not authorized to perform:
+lightsail:CreateRelationalDatabase ... with an explicit deny in a service control policy
+```
+
+El mismo rechazo apareció para `s3:CreateBucket`, `lightsail:CreateContainerService`, CloudFormation (por eso no se usó CDK), EC2, RDS, Lambda y ECR. Un *explicit deny* en una SCP no se puede saltar desde la cuenta, ni siquiera con permisos de administrador.
+
+**Qué se hizo para resolverlo:**
+
+1. Se eligieron servicios que la restricción inicialmente permitía leer (Lightsail, S3 y CloudFront) y Terraform en lugar de CDK, que depende de CloudFormation.
+2. Se pasó la cuenta del plan gratuito al **plan de pago** el 15 de noviembre de 2026, con presupuesto y límite de gasto configurados. La consola muestra la cuenta como de pago, pero la SCP siguió negando las mismas acciones.
+3. Se abrió un **caso con AWS Support** el 16 de noviembre de 2026 para que retiren la restricción. Al momento de la entrega sigue sin resolverse.
+
+**Por qué Render.** El reto permite *"any Cloud provider"*. Para que la app quedara publicada y funcionando a tiempo se usó Render, también con infraestructura como código ([`render.yaml`](render.yaml)) y la **misma imagen Docker**. No se cambió nada del código de la aplicación para eso. Si la cuenta de AWS se habilita, la app se publica en AWS con `./infra/scripts/deploy.sh`, sin tocar código. Detalles en [`infra/README.md`](infra/README.md).
 
 ## Correr el proyecto localmente
 
